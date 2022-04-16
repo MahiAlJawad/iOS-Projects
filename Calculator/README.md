@@ -5,6 +5,8 @@ It can be used to teach students:
   ii) Managing Appicons for all possible iPhone devices
   
   
-(iPhone simulator still doesn't support touch gesture to get recorderd :/ )
+(iPhone simulator still doesn't support touch gesture to get recorderd :/ So basically you don't see which buttons I tapped :( )
+
+
 https://user-images.githubusercontent.com/30589979/163672613-1e97c21f-a5dc-452b-acb0-16fd822ee945.mp4
 
