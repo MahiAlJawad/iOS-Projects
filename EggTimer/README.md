@@ -14,7 +14,9 @@
 
 ## Demo video
 
+https://user-images.githubusercontent.com/30589979/169842834-7cebb065-4bf5-4e97-82f2-45137f399e74.MP4
 
-N.B.: The demo video time for boiling is reduced to 10, 20 and 30 seconds respectively for the convenience of recording
+
+(N.B.: The demo video time for boiling is reduced to 10, 20 and 30 seconds respectively for the convenience of recording)
 
 
