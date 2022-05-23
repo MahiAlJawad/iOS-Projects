@@ -42,6 +42,7 @@ class ViewController: UIViewController {
         let button = sender as! UIButton
         
         // Initializing timer to update time elapsed in every seconds
+        timer.invalidate()
         timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(updateTime), userInfo: nil, repeats: true)
         
         print("Button tapped: \(String(describing: button.titleLabel))")
