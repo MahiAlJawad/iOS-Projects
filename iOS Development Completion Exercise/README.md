@@ -1,4 +1,4 @@
-#About
+**About**
 
 During completion of the following renowned course on **Udemy**: https://www.udemy.com/course/ios-13-app-development-bootcamp/ I completed these exercise to sharpen my skill more.
 
