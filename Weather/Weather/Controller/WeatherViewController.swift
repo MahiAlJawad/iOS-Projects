@@ -15,6 +15,8 @@ class WeatherViewController: UIViewController {
     
     @IBOutlet weak var searchBar: UITextField!
     
+    let weatherViewModel = WeatherViewModel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         searchBar.delegate = self
@@ -22,10 +24,21 @@ class WeatherViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
 
+    func getWeather(of city: String) {
+        guard !city.isEmpty else {
+            let alert = UIAlertController(
+                title: "Invalid City", message: "Please enter a valid city name", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true)
+            return
+        }
+        
+        weatherViewModel.fetchWeather(by: city)
+    }
 
     @IBAction func searchTapped(_ sender: Any) {
         print("Searched: \(searchBar.text)")
-        // get the result
+        getWeather(of: searchBar.text ?? "")
         searchBar.endEditing(true)
     }
 }
@@ -34,7 +47,7 @@ extension WeatherViewController: UITextFieldDelegate {
     // called when return key is pressed
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         print("Searched: \(textField.text)")
-        // get the result
+        getWeather(of: searchBar.text ?? "")
         searchBar.endEditing(true)
         return true
     }
