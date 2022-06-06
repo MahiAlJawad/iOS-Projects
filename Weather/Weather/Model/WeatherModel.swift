@@ -13,6 +13,7 @@ struct WeatherModel {
     let temperature: Float
     let realFeel: Float
     let weatherConditionID: Int
+    let weatherConditionStatus: String
     
     var weatherIcon: String {
         switch weatherConditionID {

@@ -11,6 +11,7 @@ import UIKit
 class WeatherViewController: UIViewController {
     
     @IBOutlet weak var conditionImageView: UIImageView!
+    @IBOutlet weak var conditionDescriptionLabel: UILabel!
     @IBOutlet weak var temperatureLabel: UILabel!
     @IBOutlet weak var cityLabel: UILabel!
     
@@ -79,15 +80,26 @@ extension WeatherViewController: UITextFieldDelegate {
 
 // MARK: Weather Fetch Delegate
 extension WeatherViewController: WeatherModelDelegate {
+    func didFetchedLocation(_ locationName: String) {
+        print("Updating city name: \(locationName)")
+        DispatchQueue.main.async {
+            self.cityLabel.text = locationName
+        }
+    }
+    
+    func didFailedFetchingLocation(_ error: Error) {
+        print("Error fetching location data")
+    }
+    
     func didFetchedWeather(_ weatherData: WeatherModel?) {
         guard let weatherData = weatherData else {
             print("Failed fetching weather data")
             return
         }
         DispatchQueue.main.async {
-            self.cityLabel.text = weatherData.cityName
             self.temperatureLabel.text = weatherData.temparatureDescription
             self.conditionImageView.image = UIImage(systemName: weatherData.weatherIcon)
+            self.conditionDescriptionLabel.text = weatherData.weatherConditionStatus
             self.realFeelLabel.text = weatherData.realFeelDescription
         }
     }
@@ -104,8 +116,10 @@ extension WeatherViewController: CLLocationManagerDelegate {
             showNetworkAlert()
             return
         }
+        manager.stopUpdatingLocation()
         print("Found lat: \(location.coordinate.latitude) long: \(location.coordinate.longitude)")
         weatherViewModel.fetchWeather(by: location.coordinate)
+        weatherViewModel.fetchLocation(by: location.coordinate)
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
