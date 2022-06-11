@@ -4,4 +4,4 @@ I'm a professional iOS Mobile Application Developer in Samsung R&D Institute Ban
 
 # About This Repository
 
-This contains iOS Projects I've done in my free time for practicing and sharpen my skill more in different iOS technologies and development features.
+This contains iOS Projects I've done in my free time for practicing and keeping myself up to date in iOS Development Platform by sharpening my skills.
