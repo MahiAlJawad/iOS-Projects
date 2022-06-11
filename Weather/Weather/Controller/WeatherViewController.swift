@@ -42,11 +42,22 @@ class WeatherViewController: UIViewController {
             return
         }
         
-        weatherViewModel.fetchWeather(by: city)
+        var searchText: String {
+            if city.last == " " { // in case of keyboard suggestion the last character is empty space
+                return String(city.dropLast())
+            } else {
+                return city
+            }
+        }
+        
+        print("Requesting to get weather of: \(searchText)")
+        
+        weatherViewModel.fetchWeather(by: searchText)
     }
 
     @IBAction func searchTapped(_ sender: Any) {
         print("Searched: \(String(describing: searchBar.text))")
+        
         getWeather(of: searchBar.text ?? "")
         searchBar.endEditing(true)
     }
@@ -80,6 +91,19 @@ extension WeatherViewController: UITextFieldDelegate {
 
 // MARK: Weather Fetch Delegate
 extension WeatherViewController: WeatherModelDelegate {
+    func didFetchCurrentLocationWeather(_ weatherData: WeatherModel?) {
+        guard let weatherData = weatherData else {
+            print("Failed fetching weather data")
+            return
+        }
+        DispatchQueue.main.async {
+            self.temperatureLabel.text = weatherData.temparatureDescription
+            self.conditionImageView.image = UIImage(systemName: weatherData.weatherIcon)
+            self.conditionDescriptionLabel.text = weatherData.weatherConditionStatus
+            self.realFeelLabel.text = weatherData.realFeelDescription
+        }
+    }
+    
     func didFetchedLocation(_ locationName: String) {
         print("Updating city name: \(locationName)")
         DispatchQueue.main.async {
@@ -97,6 +121,7 @@ extension WeatherViewController: WeatherModelDelegate {
             return
         }
         DispatchQueue.main.async {
+            self.cityLabel.text = weatherData.cityName
             self.temperatureLabel.text = weatherData.temparatureDescription
             self.conditionImageView.image = UIImage(systemName: weatherData.weatherIcon)
             self.conditionDescriptionLabel.text = weatherData.weatherConditionStatus

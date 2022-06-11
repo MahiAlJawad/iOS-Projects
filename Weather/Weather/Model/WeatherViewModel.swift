@@ -10,6 +10,7 @@ import Foundation
 
 protocol WeatherModelDelegate {
     func didFetchedWeather(_ weatherData: WeatherModel?)
+    func didFetchCurrentLocationWeather(_ weatherData: WeatherModel?)
     func didFailedFetchingWeather(_ error: Error)
     func didFetchedLocation(_ locationName: String)
     func didFailedFetchingLocation(_ error: Error)
@@ -65,7 +66,26 @@ extension WeatherViewModel {
             
             let weatherData = self.parseJSON(with: data)
             self.delegate.didFetchedWeather(weatherData)
-            self.delegate.didFetchedLocation(weatherData?.cityName ?? "")
+        }
+        
+        task.resume()
+    }
+    
+    func fetchCurrentLocationWeather(with url: URL) {
+        let session = URLSession(configuration: .default)
+        
+        let task = session.dataTask(with: url) { [weak self] data, _, error in
+            guard error == nil, let data = data, let self = self else {
+                guard let error = error else {
+                    print("Found data nil: \(String(describing: data))")
+                    return
+                }
+                self?.delegate.didFailedFetchingWeather(error)
+                return
+            }
+            
+            let weatherData = self.parseJSON(with: data)
+            self.delegate.didFetchCurrentLocationWeather(weatherData)
         }
         
         task.resume()
@@ -84,7 +104,7 @@ extension WeatherViewModel {
             return
         }
         
-        performRequest(with: url)
+        fetchCurrentLocationWeather(with: url)
     }
     
     
