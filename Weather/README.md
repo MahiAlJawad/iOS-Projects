@@ -15,4 +15,4 @@ This is a Weather App made for iOS. It has the following feature:
 
 # Demo Video
 
-https://youtube.com/shorts/cCCP8bfibW0?feature=share
+[![IMAGE ALT TEXT](http://img.youtube.com/vi/cCCP8bfibW0/0.jpg)](https://youtube.com/shorts/cCCP8bfibW0?feature=share "Click to Watch")
