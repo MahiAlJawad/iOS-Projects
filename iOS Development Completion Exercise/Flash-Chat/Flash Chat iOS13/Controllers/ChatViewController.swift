@@ -7,11 +7,14 @@
 //
 
 import FirebaseAuth
+import FirebaseFirestore
 import UIKit
 
 class ChatViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var messageTextfield: UITextField!
+    
+    var messages = [Message]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,9 +27,19 @@ class ChatViewController: UIViewController {
             UINib(nibName: Constants.cellNibName, bundle: nil),
             forCellReuseIdentifier: Constants.cellIdentifier
         )
+        
+        loadMessages()
     }
     
     @IBAction func sendPressed(_ sender: UIButton) {
+        guard let message = messageTextfield.text, let userEmail = Auth.auth().currentUser?.email else {
+            print("Failed getting message or user email")
+            return
+        }
+        
+        messageTextfield.text = ""
+        
+        saveMessageToCloud(userEmail: userEmail, message: message)
     }
     
     @IBAction func logoutPressed(_ sender: Any) {
@@ -54,14 +67,94 @@ class ChatViewController: UIViewController {
     }
 }
 
+// MARK: TableView Data Source functions
 extension ChatViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 5
+        return messages.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Constants.cellIdentifier, for: indexPath) as! MessageCell
         
+        cell.message.text = messages[indexPath.row].body
+        
         return cell
+    }
+}
+
+// MARK: Read-Write in Firebase
+extension ChatViewController {
+    func loadMessages() {
+        let db = Firestore.firestore()
+        
+        db.collection(Constants.FStore.collectionName)
+            .order(by: Constants.FStore.dateField) // Order by date
+            .addSnapshotListener { querySnapshot, error in
+                guard error == nil, let querySnapshot = querySnapshot else {
+                    print("Error fetching data from Firestore")
+                    return
+                }
+                
+                if self.messages.count == 0 { // i.e. First load
+                    let records = querySnapshot.documents.map { $0.data() }
+                    
+                    records.map { record in
+                        if let sender = record[Constants.FStore.senderField] as? String,
+                           let message = record[Constants.FStore.bodyField] as? String {
+                            let message = Message(sender: sender, body: message)
+                            self.messages.append(message)
+                        }
+                    }
+                    
+                    DispatchQueue.main.async {
+                        self.tableView.reloadData()
+                        let lastRow = self.tableView.numberOfRows(inSection: 0) - 1
+                        let lastIndexPath = IndexPath(item: lastRow, section: 0)
+                        self.tableView.scrollToRow(at: lastIndexPath, at: .top, animated: true) // scroll to the last message
+                    }
+                } else { // Single message sent
+                    let record = querySnapshot.documents.map { $0.data() }.last
+
+                    if let record = record,
+                       let sender = record[Constants.FStore.senderField] as? String,
+                       let message = record[Constants.FStore.bodyField] as? String {
+                        let message = Message(sender: sender, body: message)
+                        print("Message found: \(message)")
+                        self.messages.append(message)
+                        
+                        // load only the last message
+                        let index = self.messages.count - 1
+                        let indexPath = IndexPath(item: index, section: 0)
+                        
+                        DispatchQueue.main.async {
+                            self.tableView.insertRows(at: [indexPath], with: .automatic) // insert the last message
+                            self.tableView.scrollToRow(at: indexPath, at: .top, animated: true) // scroll to the last message
+                        }
+                    }
+                }
+            }
+    }
+    
+    func saveMessageToCloud(userEmail: String, message: String) {
+        let db = Firestore.firestore()
+        
+        let data: [String: Any] = [
+            Constants.FStore.senderField: userEmail,
+            Constants.FStore.bodyField: message,
+            Constants.FStore.dateField: Date().timeIntervalSince1970
+        ]
+        
+        // Here collectionName can be considered as the table name
+        // In data, we save as dictionary, the key of the dictionary represents the
+        // fieldName or atribute in a database
+        
+        db.collection(Constants.FStore.collectionName).addDocument(data: data) { error in
+            guard error == nil else {
+                print("Failed saving data")
+                return
+            }
+            
+            print("Data saved successfully")
+        }
     }
 }

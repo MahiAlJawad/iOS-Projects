@@ -15,9 +15,6 @@ class LoginViewController: UIViewController {
     
 
     @IBAction func loginPressed(_ sender: UIButton) {
-        self.performSegue(withIdentifier: Constants.loginSegue, sender: self)
-        // todo: remove
-        return
         guard
             let email = emailTextfield.text,
             let password = passwordTextfield.text,
