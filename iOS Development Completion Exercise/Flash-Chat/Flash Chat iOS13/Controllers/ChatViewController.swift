@@ -2,9 +2,6 @@
 //  ChatViewController.swift
 //  Flash Chat iOS13
 //
-//  Created by Angela Yu on 21/10/2019.
-//  Copyright © 2019 Angela Yu. All rights reserved.
-//
 
 import FirebaseAuth
 import FirebaseFirestore
@@ -29,6 +26,9 @@ class ChatViewController: UIViewController {
         )
         
         loadMessages()
+        
+        view.addGestureRecognizer(UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing(_:)))) // dismisses the keybaord when selected outside the textField i.e. on the view
+                // Do any additional setup after loading the view.
     }
     
     @IBAction func sendPressed(_ sender: UIButton) {
@@ -76,6 +76,16 @@ extension ChatViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: Constants.cellIdentifier, for: indexPath) as! MessageCell
         
+        if Auth.auth().currentUser?.email == messages[indexPath.row].sender { // Own message
+            cell.leftImageView.isHidden = true
+            cell.rightImageView.isHidden = false
+            cell.messageBubble.backgroundColor = UIColor(named: Constants.BrandColors.purple)
+        } else { // Recepients message
+            cell.leftImageView.isHidden = false
+            cell.rightImageView.isHidden = true
+            cell.messageBubble.backgroundColor = UIColor(named: Constants.BrandColors.blue)
+        }
+        
         cell.message.text = messages[indexPath.row].body
         
         return cell
@@ -110,7 +120,7 @@ extension ChatViewController {
                         self.tableView.reloadData()
                         let lastRow = self.tableView.numberOfRows(inSection: 0) - 1
                         let lastIndexPath = IndexPath(item: lastRow, section: 0)
-                        self.tableView.scrollToRow(at: lastIndexPath, at: .top, animated: true) // scroll to the last message
+                        self.tableView.scrollToRow(at: lastIndexPath, at: .top, animated: false) // scroll to the last message
                     }
                 } else { // Single message sent
                     let record = querySnapshot.documents.map { $0.data() }.last
